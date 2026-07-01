@@ -1,0 +1,14 @@
+{
+  "name": "spectra-demo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Demo target application that Spectra runs its PR consistency checks against.",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm --filter @spectra/demo-backend build && pnpm --filter @spectra/demo-frontend build",
+    "typecheck": "pnpm -r run typecheck"
+  }
+}

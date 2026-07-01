@@ -1,0 +1,51 @@
+name: spectra-preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: read
+  statuses: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Pin pnpm explicitly. This repo is a standalone pnpm workspace
+      # (package.json + pnpm-workspace.yaml + pnpm-lock.yaml at the root); the
+      # version is kept in sync with the root package.json `packageManager`.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --filter @spectra/demo-frontend build
+
+      - name: Build backend
+        run: pnpm --filter @spectra/demo-backend build
+
+      # TODO (Person A, Week 2-3): replace this stub with a call to
+      # spectra/preview-action@v1 once that reusable action is published.
+      # The reusable action will:
+      #   - serve the built frontend and backend on a public URL
+      #     (e.g. cloudflared tunnel or a per-PR Vercel preview)
+      #   - emit a `deployment_status` event with the URL
+      #   - hold the deployment open until Spectra posts its check
+      - name: Preview-action stub
+        run: |
+          echo "Spectra preview-action will go here. See docs/team/person-a-bot-core.md."

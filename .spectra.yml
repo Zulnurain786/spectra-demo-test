@@ -1,0 +1,30 @@
+# Spectra configuration. See docs/plan.md §6 for the full model.
+#
+# Most config (LLM provider/key, Figma credentials, doc-source OAuth,
+# service catalog) lives in the admin UI per-installation, not in this file.
+# This file holds behaviour toggles and the explicit-link fallback only.
+
+linking:
+  # If true, PRs without "Implements: PRD-XX" refs get rejected with a
+  # friendly message. Default false: missing refs fall back to MCP-driven
+  # inference (PR title, body, branch, diff).
+  prMustReference: false
+
+  # If true and Tier 1 (explicit refs) yields nothing, Spectra calls
+  # docs.search across configured MCP integrations.
+  fallbackToSemanticSearch: true
+
+severity:
+  blockOn:
+    - breaking_api
+    - missing_route
+
+# Optional. Only for doc sources without an MCP integration available.
+# In most setups this section is empty - Notion / Confluence / Google Drive /
+# GitHub MCPs handle doc discovery automatically based on the OAuth scope
+# the operator granted via the admin UI.
+#
+# docs:
+#   links:
+#     - { kind: prd,  url: "https://internal.myorg.com/prds/billing-engine" }
+#     - { kind: hltd, url: "https://wiki.myorg.com/architecture/billing-hltd" }
