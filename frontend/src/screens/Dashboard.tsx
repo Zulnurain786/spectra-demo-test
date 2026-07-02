@@ -55,7 +55,7 @@ export function Dashboard(): ReactElement {
         </button>
       </form>
       {itemsQuery.isLoading ? (
-        <p data-testid="items-loading">Loading items...…</p>
+        <p data-testid="items-loading">Loading items…</p>
       ) : itemsQuery.error ? (
         <p data-testid="items-error" role="alert" style={{ color: "crimson" }}>
           {itemsQuery.error.message}
