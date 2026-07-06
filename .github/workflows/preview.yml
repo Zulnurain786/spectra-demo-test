@@ -1,5 +1,11 @@
 name: spectra-preview
 
+# Build the PR's frontend, serve it, and expose a public preview URL through a
+# cloudflared quick tunnel. The reusable spectra/preview-action then publishes a
+# `deployment_status(success)` with that URL, which Spectra's bot consumes to run
+# its design-frontend pipeline (capture_preview -> dom-semantic-diff + visual-diff)
+# against the live build, and finally waits for the `Spectra / consistency` check.
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -7,13 +13,14 @@ on:
 permissions:
   contents: read
   deployments: write
+  checks: read
   pull-requests: read
   statuses: write
 
 jobs:
   preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,19 +40,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build frontend
-        run: pnpm --filter @spectra/demo-frontend build
-
-      - name: Build backend
-        run: pnpm --filter @spectra/demo-backend build
-
-      # TODO (Person A, Week 2-3): replace this stub with a call to
-      # spectra/preview-action@v1 once that reusable action is published.
-      # The reusable action will:
-      #   - serve the built frontend and backend on a public URL
-      #     (e.g. cloudflared tunnel or a per-PR Vercel preview)
-      #   - emit a `deployment_status` event with the URL
-      #   - hold the deployment open until Spectra posts its check
-      - name: Preview-action stub
-        run: |
-          echo "Spectra preview-action will go here. See docs/team/person-a-bot-core.md."
+      - name: Spectra live preview
+        uses: ./.github/actions/preview
+        with:
+          build-command: pnpm --filter @spectra/demo-frontend build
+          serve-command: pnpm --filter @spectra/demo-frontend preview
+          port: "4173"
+          environment: preview
+          timeout: "600"
+          # Attach the deployment to the PR head commit so the bot can map the
+          # deployment_status back to this pull request.
+          sha: ${{ github.event.pull_request.head.sha }}

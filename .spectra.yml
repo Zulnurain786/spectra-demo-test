@@ -14,6 +14,28 @@ linking:
   # docs.search across configured MCP integrations.
   fallbackToSemanticSearch: true
 
+# Figma design source for the design pipelines (doc-design + design-frontend).
+# The design-frontend pipeline exports each frame as a PNG via the figma-bridge
+# `get_frame_image` tool and uses it as the visual-diff baseline against the
+# captured preview screenshot. The frame names mirror the screens in SURFACE.md.
+#
+# `fileId` is the Figma file key. `demo-figma-file` is the frozen placeholder the
+# fixtures use; point it at a real file key once a design is connected (the Figma
+# PAT itself lives in the admin UI per-installation, never in this file).
+figma:
+  fileId: demo-figma-file
+  frames:
+    - Login
+    - Dashboard
+
+# Frontend routes in scope. The preview action serves these and the
+# design-frontend pipeline navigates to them to capture the rendered DOM +
+# screenshot for each frame above.
+frontend:
+  routes:
+    - /login
+    - /dashboard
+
 severity:
   blockOn:
     - breaking_api
